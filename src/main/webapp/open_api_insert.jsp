@@ -3,14 +3,6 @@
 <%@ page import="java.sql.*" %>
 <%@ page import="java.sql.DriverManager" %>
 <%@ page import="java.sql.PreparedStatement" %>
-<%--<%--%>
-<%--    // JDBC 드라이버 로드 -> 그래야 자바 파일 실행 했을 때 데이터베이스에 연결 될 수 있다.--%>
-<%--    try {--%>
-<%--        Class.forName("org.sqlite.JDBC");--%>
-<%--    } catch (ClassNotFoundException e) {--%>
-<%--        throw new RuntimeException(e);--%>
-<%--    }--%>
-<%--%>--%>
 
 <!DOCTYPE html>
 <html>
@@ -31,12 +23,13 @@
     </style>
 </head>
 <body>
-<h1>23000개의 WIFI 정보를 정상적으로 저장하였습니다.</h1>
-
 <%
+    Connection conn = null;
+    PreparedStatement pstmt = null;
+
     try {
         Class.forName("org.sqlite.JDBC");
-        Connection conn = DriverManager.getConnection("jdbc:sqlite:/Users/han/zerobase_wifi.db");
+        conn = DriverManager.getConnection("jdbc:sqlite:/Users/han/zerobase_wifi.db");
 
         // Wifi 테이블이 없으면 생성
         String createTableQuery = "CREATE TABLE IF NOT EXISTS Wifi (" +
@@ -58,16 +51,46 @@
                 "LNT DOUBLE, " +
                 "WORK_DTTM DATETIME" +
                 ");";
-        PreparedStatement pstmt = conn.prepareStatement(createTableQuery);
+        pstmt = conn.prepareStatement(createTableQuery);
         pstmt.executeUpdate();
         // 데이터베이스에 정보를 삽입
         ApiExplorer.func2();
+
+        // Wifi 테이블의 행 수 가져오기
+        String countQuery = "SELECT COUNT(*) FROM Wifi";
+        Statement stmt = conn.createStatement();
+        ResultSet resultSet = stmt.executeQuery(countQuery);
+        int rowCount = 0;
+        if (resultSet.next()) {
+            rowCount = resultSet.getInt(1);
+        }
+%>
+
+<h1><%= rowCount %>개의 WIFI 정보를 정상적으로 저장하였습니다.</h1>
+
+<%
     } catch (Exception e) {
         e.printStackTrace();
+    } finally {
+        // 리소스 해제
+        if (pstmt != null) {
+            try {
+                pstmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        if (conn != null) {
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 %>
 
-<a href="home.jsp">홈 으로 가기</a>
+<a href="home.jsp">홈으로 가기</a>
 
 </body>
 </html>
