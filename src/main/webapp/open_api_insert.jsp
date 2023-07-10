@@ -38,7 +38,7 @@
         Class.forName("org.sqlite.JDBC");
         Connection conn = DriverManager.getConnection("jdbc:sqlite:/Users/han/zerobase_wifi.db");
 
-        // History 테이블이 없으면 생성
+        // Wifi 테이블이 없으면 생성
         String createTableQuery = "CREATE TABLE IF NOT EXISTS Wifi (" +
                 "ID INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "MGR_NO VARCHAR(100), " +
